@@ -1,0 +1,45 @@
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Whisper models (large files)
+whisper_models/
+
+# Audio/log files
+*.wav
+*.mp3
+*.ogg
+*.flac
+*.log
+#transcription.txt
+
+# Development/OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+ffmpeg-*/
+
+# Node.js (future-proofing)
+node_modules/
+.pnp
+.pnp.js
+coverage/
+build/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+public/
+frontend/build/
+frontend/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
