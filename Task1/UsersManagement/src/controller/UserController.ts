@@ -18,6 +18,7 @@ export const getUserById = async (req: Request, res: Response) => {
 export const createUser = async (req: Request, res: Response) => {
     const newUser = userRepo.create(req.body)
     const savedUser = await userRepo.save(newUser)
+    res.json(savedUser)
 }
 
 export const updateUser = async (req: Request, res: Response) => {
