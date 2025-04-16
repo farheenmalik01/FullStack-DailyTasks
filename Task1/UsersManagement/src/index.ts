@@ -7,6 +7,7 @@ import {
     updateUser,
     deleteUser,
 } from "./controller/UserController"
+import { checkEmail } from "./validation";
 
 const app = express()
 app.use(express.json())
@@ -16,7 +17,7 @@ app.use(bodyParser.json());
 
 app.get("/users", getAllUsers)
 app.get("/users/:id", getUserById)
-app.post("/users", createUser)
+app.post("/users", checkEmail, createUser)
 app.put("/users/:id", updateUser)
 app.delete("/users/:id", deleteUser)
 
