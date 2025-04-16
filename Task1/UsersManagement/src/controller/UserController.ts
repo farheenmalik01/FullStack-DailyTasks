@@ -15,6 +15,12 @@ export const getUserById = async (req: Request, res: Response) => {
     res.json(user)
 }
 
+export const getUserByEmail = async (req: Request, res: Response) => {
+    const email = String(req.params.email)
+    const user = await userRepo.findOneBy({ email })
+    res.json(user)
+}
+
 export const createUser = async (req: Request, res: Response) => {
     const newUser = userRepo.create(req.body)
     const savedUser = await userRepo.save(newUser)

@@ -5,3 +5,5 @@ build/
 tmp/
 temp/
 .venv/
+
+Task1/UsersManagement/node_modules/

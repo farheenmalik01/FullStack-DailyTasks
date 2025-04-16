@@ -1,3 +1,4 @@
+import { IsEmailOptions } from "express-validator/lib/options"
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
 @Entity()
@@ -15,4 +16,6 @@ export class User {
     @Column()
     age: number
 
+    @Column()
+    email: string
 }
