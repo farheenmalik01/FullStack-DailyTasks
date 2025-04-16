@@ -6,8 +6,6 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Whisper models (large files)
-whisper_models/
 
 # Audio/log files
 *.wav
@@ -25,6 +23,8 @@ Thumbs.db
 ffmpeg-*/
 
 # Node.js (future-proofing)
+Task1/UsersManagement/node_modules/
+Task1/UsersManagement/src/
 node_modules/
 .pnp
 .pnp.js
