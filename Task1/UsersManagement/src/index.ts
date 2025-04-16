@@ -27,7 +27,7 @@ const validate = (req, res, next) => {
 app.get("/users", validate, getAllUsers)
 app.get("/users/:id", getUserById)
 app.post("/users", checkEmail, checkfirstName, checkLastName, validate, createUser)
-app.put("/users/:id", checkEmail, checkfirstName, checkLastName, updateUser)
+app.put("/users/:id", checkEmail, checkfirstName, checkLastName, validate, updateUser)
 app.delete("/users/:id", deleteUser)
 
 AppDataSource.initialize().then(() => {
