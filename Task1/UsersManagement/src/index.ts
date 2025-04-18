@@ -6,29 +6,26 @@ import {
     createUser,
     updateUser,
     deleteUser,
+    signup, 
+    signin
 } from "./controller/UserController"
-import { checkEmail, checkfirstName, checkLastName } from "./validation";
-import { validationResult } from 'express-validator';
-
+import { validation, checkSignin } from "./validation";
+import { protect } from "./authentication";
 const app = express()
 app.use(express.json())
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
-const validate = (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-};
 
-app.get("/users", validate, getAllUsers)
-app.get("/users/:id", getUserById)
-app.post("/users", checkEmail, checkfirstName, checkLastName, validate, createUser)
-app.put("/users/:id", checkEmail, checkfirstName, checkLastName, validate, updateUser)
-app.delete("/users/:id", deleteUser)
+app.get("/users", protect, getAllUsers)
+app.get("/users/:id", protect, getUserById)
+app.post("/users", validation, protect, createUser)
+app.put("/users/:id", validation, protect, updateUser)
+app.delete("/users/:id", protect, deleteUser)
+
+app.post("/signup", validation, signup)
+app.post("/signin", checkSignin, signin)
 
 AppDataSource.initialize().then(() => {
     app.listen(50000, '127.0.0.1', () => console.log("Server running at http://localhost:50000/users"))
