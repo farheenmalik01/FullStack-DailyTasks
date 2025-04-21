@@ -102,14 +102,6 @@ export const signin = async (req: Request, res: Response) => {
         
         user.token = token;
         await userRepo.save(user);
-        
-        user.tokenVersion = (user.tokenVersion) + 1;
-        await userRepo.save(user);
-        
-        const token = jwt.sign({ id: user.id, tokenVersion: user.tokenVersion }, SECRET, { expiresIn: "5m" });
-        
-        user.token = token;
-        await userRepo.save(user);
 
         const { password: _, ...userWithoutPassword } = user;
 
@@ -118,7 +110,7 @@ export const signin = async (req: Request, res: Response) => {
             user: userWithoutPassword
         });
 
-    } catch (error) {
+    } catch (error) { 
         console.error('Signin error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
