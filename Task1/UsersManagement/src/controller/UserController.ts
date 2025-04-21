@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import { AppDataSource } from "../data-source"
 import { User } from "../entity/User"
+import { checkSignin } from "../validation"
 import * as bcrypt from 'bcrypt'
 import { validationResult } from "express-validator"
 import jwt from "jsonwebtoken";
@@ -91,20 +92,18 @@ export const signup = async (req: Request, res: Response) => {
 export const signin = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
-
+        
         const user = await userRepo.findOneBy({ email });
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
+        
+        user.tokenVersion = (user.tokenVersion) + 1;
+        await userRepo.save(user);
+        
+        const token = jwt.sign({ id: user.id, tokenVersion: user.tokenVersion }, SECRET, { expiresIn: "5m" });
+        
+        user.token = token;
+        await userRepo.save(user);
 
         const { password: _, ...userWithoutPassword } = user;
-        
-        const token = jwt.sign({ id: user.id }, SECRET, { expiresIn: "1h" });
 
         res.status(200).json({
             message: 'Signin successful', token,
