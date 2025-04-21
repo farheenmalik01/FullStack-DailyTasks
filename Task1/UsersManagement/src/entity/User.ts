@@ -18,7 +18,13 @@ export class User {
 
     @Column()
     email: string
-
+    
     @Column({ nullable: true })
     password: string
+
+    @Column({ default: 0 })
+    tokenVersion: number
+
+    @Column({ nullable: true })
+    token: string
 }
