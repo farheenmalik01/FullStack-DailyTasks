@@ -29,5 +29,8 @@ export class User {
 
     @Column({ nullable: true })
     token: string
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
