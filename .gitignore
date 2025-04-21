@@ -6,7 +6,6 @@ __pycache__/
 *.pyo
 *.pyd
 
-
 # Audio/log files
 *.wav
 *.mp3

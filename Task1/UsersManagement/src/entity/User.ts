@@ -18,4 +18,16 @@ export class User {
 
     @Column()
     email: string
+<<<<<<< Updated upstream
+=======
+
+    @Column({ nullable: true })
+    password: string
+
+    @Column({ default: 0 })
+    tokenVersion: number
+
+    @Column({ nullable: true })
+    token: string
+>>>>>>> Stashed changes
 }
