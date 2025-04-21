@@ -1,7 +1,6 @@
 import { Request, Response } from "express"
 import { AppDataSource } from "../data-source"
 import { User } from "../entity/User"
-import { checkSignin } from "../validation"
 import * as bcrypt from 'bcrypt'
 import { validationResult } from "express-validator"
 import jwt from "jsonwebtoken";
@@ -92,7 +91,6 @@ export const signup = async (req: Request, res: Response) => {
 export const signin = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
-        
         const user = await userRepo.findOneBy({ email });
         
         user.tokenVersion = (user.tokenVersion) + 1;
@@ -109,7 +107,6 @@ export const signin = async (req: Request, res: Response) => {
             message: 'Signin successful', token,
             user: userWithoutPassword
         });
-
 
     } catch (error) {
         console.error('Signin error:', error);
