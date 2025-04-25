@@ -6,7 +6,6 @@ __pycache__/
 *.pyo
 *.pyd
 
-
 # Audio/log files
 *.wav
 *.mp3
@@ -24,7 +23,7 @@ ffmpeg-*/
 
 # Node.js (future-proofing)
 Task1/UsersManagement/node_modules/
-Task1/UsersManagement/src/
+task2/node_modules
 node_modules/
 .pnp
 .pnp.js
@@ -42,4 +41,3 @@ frontend/node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
-task2/
