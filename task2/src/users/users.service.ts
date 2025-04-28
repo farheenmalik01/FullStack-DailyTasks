@@ -30,7 +30,7 @@ export class UsersService {
     const savedUser = await this.usersRepository.save(user);
     return savedUser;
   }
-
+  
   async update(id: number, updateUserDto: any): Promise<User | null> {
     await this.usersRepository.update(id, updateUserDto);
     return this.usersRepository.findOneBy({ id });
