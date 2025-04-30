@@ -20,7 +20,7 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Authorization token is missing');
     }
 
-    const token = authHeader.trim();
+    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : authHeader.trim();
     
     try {
       const decoded = this.jwtService.verify(token);

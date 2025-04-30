@@ -31,7 +31,7 @@ let JwtAuthGuard = class JwtAuthGuard {
         if (!authHeader) {
             throw new common_1.UnauthorizedException('Authorization token is missing');
         }
-        const token = authHeader.trim();
+        const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : authHeader.trim();
         try {
             const decoded = this.jwtService.verify(token);
             const user = await this.userRepository.findOneBy({ id: decoded.sub });

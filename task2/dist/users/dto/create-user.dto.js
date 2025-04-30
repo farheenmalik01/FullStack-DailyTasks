@@ -10,6 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateUserDto = void 0;
+const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 class CreateUserDto {
     firstName;
@@ -36,11 +37,13 @@ __decorate([
     __metadata("design:type", Number)
 ], CreateUserDto.prototype, "age", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'user@example.com', description: 'User email' }),
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateUserDto.prototype, "email", void 0);
 __decorate([
+    (0, swagger_1.ApiProperty)({ example: 'strongpassword', description: 'User password', minLength: 8 }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.MinLength)(8),
     (0, class_validator_1.Matches)(/\d/, { message: 'Password must contain a number' }),

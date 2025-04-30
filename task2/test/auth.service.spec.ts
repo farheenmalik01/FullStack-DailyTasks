@@ -65,4 +65,16 @@ describe('AuthService', () => {
       expect(result).toBeNull();
     });
   });
+
+  describe('login', () => {
+    it('should return a signed JWT token and user data', async () => {
+      const user = { id: 1, email: 'test@example.com' };
+      jest.spyOn(service, 'login').mockImplementation(async (user) => {
+        return { token: 'mock-token', user };
+      });
+
+      const result = await service.login(user);
+      expect(result).toEqual({ token: 'mock-token', user });
+    });
+  });
 });

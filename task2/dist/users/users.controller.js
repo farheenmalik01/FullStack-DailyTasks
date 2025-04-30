@@ -21,6 +21,7 @@ const update_user_dto_1 = require("./dto/update-user.dto");
 const public_decorators_1 = require("../auth/decorators/public.decorators");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const auth_service_1 = require("../auth/auth.service");
+const swagger_1 = require("@nestjs/swagger");
 let UsersController = class UsersController {
     usersService;
     authService;
@@ -61,6 +62,9 @@ exports.UsersController = UsersController;
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guards_1.JwtAuthGuard),
     (0, common_1.Get)(),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all users' }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'List of users' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
@@ -68,6 +72,11 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guards_1.JwtAuthGuard),
     (0, common_1.Get)(':id'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get user by ID' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: Number }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User found' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'User not found' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -76,6 +85,9 @@ __decorate([
 __decorate([
     (0, public_decorators_1.Public)(),
     (0, common_1.Post)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Create a new user' }),
+    (0, swagger_1.ApiBody)({ type: create_user_dto_1.CreateUserDto }),
+    (0, swagger_1.ApiResponse)({ status: 201, description: 'User created' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_user_dto_1.CreateUserDto]),
@@ -84,6 +96,11 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guards_1.JwtAuthGuard),
     (0, common_1.Put)(':id'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Update user by ID' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: Number }),
+    (0, swagger_1.ApiBody)({ type: update_user_dto_1.UpdateUserDto }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User updated' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -94,6 +111,10 @@ __decorate([
     (0, roles_decorator_1.Roles)('admin'),
     (0, common_1.UseGuards)(jwt_auth_guards_1.JwtAuthGuard),
     (0, common_1.Delete)(':id'),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete user by ID' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: Number }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'User deleted' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -102,12 +123,18 @@ __decorate([
 __decorate([
     (0, common_1.Post)(':id/reset-token-version'),
     (0, common_1.UseGuards)(jwt_auth_guards_1.JwtAuthGuard),
+    (0, swagger_1.ApiBearerAuth)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Reset token version for user' }),
+    (0, swagger_1.ApiParam)({ name: 'id', type: Number }),
+    (0, swagger_1.ApiResponse)({ status: 200, description: 'Token version reset successfully' }),
+    (0, swagger_1.ApiResponse)({ status: 404, description: 'User not found' }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "resetTokenVersion", null);
 exports.UsersController = UsersController = __decorate([
+    (0, swagger_1.ApiTags)('users'),
     (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService,
         auth_service_1.AuthService])
