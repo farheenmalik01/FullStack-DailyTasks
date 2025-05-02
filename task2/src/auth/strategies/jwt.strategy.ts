@@ -38,7 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Invalid token - token mismatch');
     }
 
-    console.log('Token validation successful for user:', user.id); // Debug: Success
+    console.log('Token validation successful for user:', user.id);
     return user;
   }
 }
