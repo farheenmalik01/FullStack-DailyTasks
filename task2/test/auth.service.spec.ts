@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from '../src/auth/auth.service';
 import { UsersService } from '../src/users/users.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 
 const mockJwtService = {
@@ -66,15 +66,33 @@ describe('AuthService', () => {
     });
   });
 
-  describe('login', () => {
-    it('should return a signed JWT token and user data', async () => {
-      const user = { id: 1, email: 'test@example.com' };
-      jest.spyOn(service, 'login').mockImplementation(async (user) => {
-        return { token: 'mock-token', user };
-      });
+    describe('login', () => {
+      it('should return a signed JWT token and user data', async () => {
+        const user = {
+          id: 1,
+          firstName: 'John',
+          lastName: 'Doe',
+          age: 30,
+          email: 'test@example.com',
+          password: 'hashedpassword',
+          tokenVersion: 0,
+          token: 'mock-token',
+          role: 'user',
+        };
+        jest.spyOn(service, 'login').mockImplementation(async (user) => {
+          return {
+            message: 'Signin successful',
+            token: 'mock-token',
+            user,
+          };
+        });
 
-      const result = await service.login(user);
-      expect(result).toEqual({ token: 'mock-token', user });
+        const result = await service.login(user);
+        expect(result).toEqual({
+          message: 'Signin successful',
+          token: 'mock-token',
+          user,
+        });
+      });
     });
-  });
 });
