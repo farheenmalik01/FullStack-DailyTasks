@@ -1,4 +1,4 @@
-import { UsersService } from './users.service';
+import { UsersService, LocalUser } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthService } from '../auth/auth.service';
@@ -23,6 +23,10 @@ export declare class UsersController {
             tokenVersion: number;
             token: string;
             role: string;
+            profilePicture: string | null;
         };
     }>;
+    getProfile(req: any): LocalUser | undefined;
+    updateProfile(req: any, body: UpdateUserDto): LocalUser | undefined;
+    uploadPicture(req: any, file: Express.Multer.File): LocalUser | undefined;
 }

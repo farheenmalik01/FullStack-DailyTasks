@@ -18,6 +18,7 @@ export declare class AuthService {
             tokenVersion: number;
             token: string;
             role: string;
+            profilePicture: string | null;
         };
     }>;
     refreshToken(user: User): Promise<{
@@ -32,6 +33,7 @@ export declare class AuthService {
             tokenVersion: number;
             token: string;
             role: string;
+            profilePicture: string | null;
         };
     }>;
     logout(userId: number): Promise<void>;
@@ -44,5 +46,6 @@ export declare class AuthService {
         tokenVersion: number;
         token: string;
         role: string;
+        profilePicture: string | null;
     }>;
 }

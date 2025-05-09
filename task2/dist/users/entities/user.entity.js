@@ -21,6 +21,7 @@ let User = class User {
     tokenVersion;
     token;
     role;
+    profilePicture;
 };
 exports.User = User;
 __decorate([
@@ -59,6 +60,10 @@ __decorate([
     (0, typeorm_1.Column)({ default: 'user' }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "profilePicture", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);

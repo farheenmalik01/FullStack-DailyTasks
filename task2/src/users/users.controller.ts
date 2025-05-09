@@ -1,12 +1,16 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, NotFoundException } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, NotFoundException, Req, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { UsersService, LocalUser } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public } from '../auth/decorators/public.decorators';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { AuthService } from '../auth/auth.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { User } from './entities/user.entity';
 
 @ApiTags('users')
 @Controller('users')
@@ -86,5 +90,59 @@ export class UsersController {
       token: tokenResponse.token,
       user: tokenResponse.user,
     };
+  }
+
+  @Get('profile')
+  async getProfile(@Req() req): Promise<User | null> {
+    return await this.usersService.getUser(req.user.id);
+  }
+
+  @Put('profile')
+  async updateProfile(@Req() req, @Body() body: UpdateUserDto): Promise<User | null> {
+    return await this.usersService.updateUser(req.user.id, body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('profile/picture')
+  @ApiBearerAuth()
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (req, file, cb) => {
+        cb(null, `${Date.now()}${extname(file.originalname)}`);
+      },
+    }),
+  }))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile picture updated',
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string' },
+        name: { type: 'string' },
+        profilePicture: { type: 'string', description: 'URL or path to the profile picture' },
+      },
+    },
+  })
+  async uploadPicture(@Req() req, @UploadedFile() file: Express.Multer.File): Promise<User | null> {
+    try {
+      return await this.usersService.updateProfilePicture(req.user.id, file.filename);
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      throw error;
+    }
   }
 }
