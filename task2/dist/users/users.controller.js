@@ -22,6 +22,9 @@ const public_decorators_1 = require("../auth/decorators/public.decorators");
 const roles_decorator_1 = require("../auth/decorators/roles.decorator");
 const auth_service_1 = require("../auth/auth.service");
 const swagger_1 = require("@nestjs/swagger");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
+const path_1 = require("path");
 let UsersController = class UsersController {
     usersService;
     authService;
@@ -56,6 +59,15 @@ let UsersController = class UsersController {
             token: tokenResponse.token,
             user: tokenResponse.user,
         };
+    }
+    getProfile(req) {
+        return this.usersService.getUser(req.user.id);
+    }
+    updateProfile(req, body) {
+        return this.usersService.updateUser(req.user.id, body);
+    }
+    uploadPicture(req, file) {
+        return this.usersService.updateProfilePicture(req.user.id, file.filename);
     }
 };
 exports.UsersController = UsersController;
@@ -133,6 +145,49 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "resetTokenVersion", null);
+__decorate([
+    (0, common_1.Get)('profile'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Object)
+], UsersController.prototype, "getProfile", null);
+__decorate([
+    (0, common_1.Put)('profile'),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, update_user_dto_1.UpdateUserDto]),
+    __metadata("design:returntype", Object)
+], UsersController.prototype, "updateProfile", null);
+__decorate([
+    (0, common_1.Put)('profile/picture'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file', {
+        storage: (0, multer_1.diskStorage)({
+            destination: './uploads',
+            filename: (req, file, cb) => {
+                cb(null, `${Date.now()}${(0, path_1.extname)(file.originalname)}`);
+            },
+        }),
+    })),
+    (0, swagger_1.ApiConsumes)('multipart/form-data'),
+    (0, swagger_1.ApiBody)({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary',
+                },
+            },
+        },
+    }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Object)
+], UsersController.prototype, "uploadPicture", null);
 exports.UsersController = UsersController = __decorate([
     (0, swagger_1.ApiTags)('users'),
     (0, common_1.Controller)('users'),

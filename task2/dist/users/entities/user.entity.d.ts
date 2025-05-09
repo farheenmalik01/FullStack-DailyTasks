@@ -8,4 +8,5 @@ export declare class User {
     tokenVersion: number;
     token: string;
     role: string;
+    profilePicture: string | null;
 }

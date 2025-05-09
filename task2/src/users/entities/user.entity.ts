@@ -28,4 +28,7 @@ export class User {
 
   @Column({ default: 'user' })
   role: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  profilePicture: string | null;
 }

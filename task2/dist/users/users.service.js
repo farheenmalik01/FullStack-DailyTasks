@@ -22,6 +22,9 @@ let UsersService = class UsersService {
     constructor(usersRepository) {
         this.usersRepository = usersRepository;
     }
+    users = [
+        { id: '1', name: 'John Doe', profilePicture: null },
+    ];
     findAll() {
         return this.usersRepository.find();
     }
@@ -36,8 +39,7 @@ let UsersService = class UsersService {
             throw new Error('createUserDto should not be an array');
         }
         const user = this.usersRepository.create(createUserDto);
-        const savedUser = await this.usersRepository.save(user);
-        return savedUser;
+        return await this.usersRepository.save(user);
     }
     async update(id, updateUserDto) {
         await this.usersRepository.update(id, updateUserDto);
@@ -45,6 +47,23 @@ let UsersService = class UsersService {
     }
     async remove(id) {
         await this.usersRepository.delete(id);
+    }
+    getUser(id) {
+        return this.users.find(user => user.id === id);
+    }
+    updateUser(id, data) {
+        const user = this.getUser(id);
+        if (user) {
+            Object.assign(user, data);
+        }
+        return user;
+    }
+    updateProfilePicture(id, filename) {
+        const user = this.getUser(id);
+        if (user) {
+            user.profilePicture = filename;
+        }
+        return user;
     }
 };
 exports.UsersService = UsersService;
