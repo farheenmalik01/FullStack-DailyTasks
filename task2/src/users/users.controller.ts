@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, NotFoundException, Req, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, NotFoundException, Req, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
 import { UsersService, LocalUser } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -11,6 +11,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { User } from './entities/user.entity';
+import { Response } from 'express';
 
 @ApiTags('users')
 @Controller('users')
@@ -103,7 +104,7 @@ export class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Put('profile/picture')
+  @Put(':id/picture')
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
@@ -137,12 +138,28 @@ export class UsersController {
       },
     },
   })
-  async uploadPicture(@Req() req, @UploadedFile() file: Express.Multer.File): Promise<User | null> {
+  async uploadPicture(@Param('id') id: string, @UploadedFile() file: Express.Multer.File): Promise<User | null> {
     try {
-      return await this.usersService.updateProfilePicture(req.user.id, file.filename);
+      if (!id || isNaN(Number(id))) {
+        throw new Error('Invalid user ID');
+      }
+      const user = await this.usersService.updateProfilePicture(id, file.filename);
+      return user;
     } catch (error) {
       console.error('Error uploading profile picture:', error);
       throw error;
     }
+  }
+
+  @Get(':id/picture')
+  async getPicture(@Param('id') id: string, @Res() res: Response) {
+    const user = await this.usersService.findOne(+id);
+    if (!user || !user.profilePicture) {
+      return res.status(404).send('Picture not found');
+    }
+    const picturePath = user.profilePicture.startsWith('/')
+      ? user.profilePicture.substring(1)
+      : user.profilePicture;
+    return res.sendFile(picturePath, { root: '.' });
   }
 }

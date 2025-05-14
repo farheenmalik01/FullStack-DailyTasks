@@ -1,0 +1,12 @@
+{
+  "id": 123,
+  "firstName": "Test",
+  "lastName": "User",
+  "age": 30,
+  "email": "testuser@example.com",
+  "password": "password",
+  "tokenVersion": 0,
+  "token": null,
+  "role": "user",
+  "profilePicture": null
+}

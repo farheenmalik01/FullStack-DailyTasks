@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { saveUserDataToFile } from './utils/file-handler';
 
 export interface LocalUser {
   id: string;
@@ -33,16 +34,38 @@ export class UsersService {
   }
 
   async create(createUserDto: Partial<User>): Promise<User> {
+    console.log('create method called with:', createUserDto);
     if (Array.isArray(createUserDto)) {
       throw new Error('createUserDto should not be an array');
     }
     const user = this.usersRepository.create(createUserDto);
-    return await this.usersRepository.save(user);
+    const savedUser = await this.usersRepository.save(user);
+    console.log('User created and saved in DB:', savedUser);
+    try {
+      console.log('Calling saveUserDataToFile in create');
+      await saveUserDataToFile(savedUser);
+      console.log('User data saved to JSON file after create.');
+    } catch (error) {
+      console.error('Error saving user data to JSON file after create:', error);
+    }
+    return savedUser;
   }
 
   async update(id: number, updateUserDto: any): Promise<User | null> {
+    console.log('update method called with id:', id, 'data:', updateUserDto);
     await this.usersRepository.update(id, updateUserDto);
-    return this.usersRepository.findOneBy({ id });
+    const updatedUser = await this.usersRepository.findOneBy({ id });
+    if (updatedUser) {
+      console.log('User updated in DB:', updatedUser);
+      try {
+        console.log('Calling saveUserDataToFile in update');
+        await saveUserDataToFile(updatedUser);
+        console.log('User data saved to JSON file after update.');
+      } catch (error) {
+        console.error('Error saving user data to JSON file after update:', error);
+      }
+    }
+    return updatedUser;
   }
 
   async remove(id: number): Promise<void> {
@@ -54,12 +77,37 @@ export class UsersService {
   }
 
   async updateUser(id: string, data: any): Promise<User | null> {
+    console.log('updateUser method called with id:', id, 'data:', data);
     await this.usersRepository.update(parseInt(id), data);
-    return this.usersRepository.findOneBy({ id: parseInt(id) });
+    const updatedUser = await this.usersRepository.findOneBy({ id: parseInt(id) });
+    if (updatedUser) {
+      console.log('User updated in DB (updateUser):', updatedUser);
+      try {
+        console.log('Calling saveUserDataToFile in updateUser');
+        await saveUserDataToFile(updatedUser);
+        console.log('User data saved to JSON file after updateUser.');
+      } catch (error) {
+        console.error('Error saving user data to JSON file after updateUser:', error);
+      }
+    }
+    return updatedUser;
   }
 
   async updateProfilePicture(id: string, filename: string): Promise<User | null> {
-    await this.usersRepository.update(parseInt(id), { profilePicture: filename });
-    return this.usersRepository.findOneBy({ id: parseInt(id) });
+    console.log('updateProfilePicture method called with id:', id, 'filename:', filename);
+    const profilePicturePath = `/uploads/${filename}`;
+    await this.usersRepository.update(parseInt(id), { profilePicture: profilePicturePath });
+    const updatedUser = await this.usersRepository.findOneBy({ id: parseInt(id) });
+    if (updatedUser) {
+      try {
+        console.log('Calling saveUserDataToFile in updateProfilePicture');
+        await saveUserDataToFile(updatedUser);
+        console.log(`Profile picture updated for user ID: ${id} with file: ${profilePicturePath}`);
+        console.log('User data saved to JSON file after updateProfilePicture.');
+      } catch (error) {
+        console.error('Error saving user data to JSON file after updateProfilePicture:', error);
+      }
+    }
+    return updatedUser;
   }
 }
