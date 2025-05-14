@@ -108,7 +108,7 @@ export class UsersController {
   @ApiBearerAuth()
   @UseInterceptors(FileInterceptor('file', {
     storage: diskStorage({
-      destination: './uploads',
+      destination: '/usr/src/app/uploads',
       filename: (req, file, cb) => {
         cb(null, `${Date.now()}${extname(file.originalname)}`);
       },
