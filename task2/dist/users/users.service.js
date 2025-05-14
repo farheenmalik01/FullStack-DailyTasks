@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
 const user_entity_1 = require("./entities/user.entity");
+const file_handler_1 = require("./utils/file-handler");
 let UsersService = class UsersService {
     usersRepository;
     constructor(usersRepository) {
@@ -35,35 +36,80 @@ let UsersService = class UsersService {
         return this.usersRepository.findOneBy({ email });
     }
     async create(createUserDto) {
+        console.log('create method called with:', createUserDto);
         if (Array.isArray(createUserDto)) {
             throw new Error('createUserDto should not be an array');
         }
         const user = this.usersRepository.create(createUserDto);
-        return await this.usersRepository.save(user);
+        const savedUser = await this.usersRepository.save(user);
+        console.log('User created and saved in DB:', savedUser);
+        try {
+            console.log('Calling saveUserDataToFile in create');
+            await (0, file_handler_1.saveUserDataToFile)(savedUser);
+            console.log('User data saved to JSON file after create.');
+        }
+        catch (error) {
+            console.error('Error saving user data to JSON file after create:', error);
+        }
+        return savedUser;
     }
     async update(id, updateUserDto) {
+        console.log('update method called with id:', id, 'data:', updateUserDto);
         await this.usersRepository.update(id, updateUserDto);
-        return this.usersRepository.findOneBy({ id });
+        const updatedUser = await this.usersRepository.findOneBy({ id });
+        if (updatedUser) {
+            console.log('User updated in DB:', updatedUser);
+            try {
+                console.log('Calling saveUserDataToFile in update');
+                await (0, file_handler_1.saveUserDataToFile)(updatedUser);
+                console.log('User data saved to JSON file after update.');
+            }
+            catch (error) {
+                console.error('Error saving user data to JSON file after update:', error);
+            }
+        }
+        return updatedUser;
     }
     async remove(id) {
         await this.usersRepository.delete(id);
     }
-    getUser(id) {
-        return this.users.find(user => user.id === id);
+    async getUser(id) {
+        return this.usersRepository.findOneBy({ id: parseInt(id) });
     }
-    updateUser(id, data) {
-        const user = this.getUser(id);
-        if (user) {
-            Object.assign(user, data);
+    async updateUser(id, data) {
+        console.log('updateUser method called with id:', id, 'data:', data);
+        await this.usersRepository.update(parseInt(id), data);
+        const updatedUser = await this.usersRepository.findOneBy({ id: parseInt(id) });
+        if (updatedUser) {
+            console.log('User updated in DB (updateUser):', updatedUser);
+            try {
+                console.log('Calling saveUserDataToFile in updateUser');
+                await (0, file_handler_1.saveUserDataToFile)(updatedUser);
+                console.log('User data saved to JSON file after updateUser.');
+            }
+            catch (error) {
+                console.error('Error saving user data to JSON file after updateUser:', error);
+            }
         }
-        return user;
+        return updatedUser;
     }
-    updateProfilePicture(id, filename) {
-        const user = this.getUser(id);
-        if (user) {
-            user.profilePicture = filename;
+    async updateProfilePicture(id, filename) {
+        console.log('updateProfilePicture method called with id:', id, 'filename:', filename);
+        const profilePicturePath = `/uploads/${filename}`;
+        await this.usersRepository.update(parseInt(id), { profilePicture: profilePicturePath });
+        const updatedUser = await this.usersRepository.findOneBy({ id: parseInt(id) });
+        if (updatedUser) {
+            try {
+                console.log('Calling saveUserDataToFile in updateProfilePicture');
+                await (0, file_handler_1.saveUserDataToFile)(updatedUser);
+                console.log(`Profile picture updated for user ID: ${id} with file: ${profilePicturePath}`);
+                console.log('User data saved to JSON file after updateProfilePicture.');
+            }
+            catch (error) {
+                console.error('Error saving user data to JSON file after updateProfilePicture:', error);
+            }
         }
-        return user;
+        return updatedUser;
     }
 };
 exports.UsersService = UsersService;

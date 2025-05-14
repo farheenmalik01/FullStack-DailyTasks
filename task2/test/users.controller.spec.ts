@@ -16,6 +16,7 @@ const mockUsersService = {
   create: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
+  updateProfilePicture: jest.fn(),
 };
 
 const mockAuthService = {
@@ -61,5 +62,27 @@ describe('UsersController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('uploadPicture', () => {
+    it('should upload a valid image file and return updated user', async () => {
+      const userId = '1';
+      const file = { filename: 'test-image.png', mimetype: 'image/png' } as Express.Multer.File;
+      const updatedUser = { id: 1, name: 'Test User', profilePicture: '/uploads/test-image.png' };
+
+      mockUsersService.updateProfilePicture.mockResolvedValue(updatedUser);
+
+      const result = await controller.uploadPicture(userId, file);
+
+      expect(mockUsersService.updateProfilePicture).toHaveBeenCalledWith(userId, file.filename);
+      expect(result).toEqual(updatedUser);
+    });
+
+    it('should throw error for invalid user ID', async () => {
+      const invalidUserId = 'abc';
+      const file = { filename: 'test-image.png', mimetype: 'image/png' } as Express.Multer.File;
+
+      await expect(controller.uploadPicture(invalidUserId, file)).rejects.toThrow('Invalid user ID');
+    });
   });
 });
