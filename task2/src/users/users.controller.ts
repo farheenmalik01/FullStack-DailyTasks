@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, NotFoundException, Req, UseInterceptors, UploadedFile, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, NotFoundException, Req, UseInterceptors, UploadedFile, Res, ForbiddenException } from '@nestjs/common';
 import { UsersService, LocalUser } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -12,6 +12,10 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { User } from './entities/user.entity';
 import { Response } from 'express';
+import { MyStuff } from './entities/my-stuff.entity';
+import { CreateMyStuffDto } from './dto/create-my-stuff.dto';
+import { UpdateMyStuffDto } from './dto/update-my-stuff.dto';
+
 
 @ApiTags('users')
 @Controller('users')
@@ -167,5 +171,65 @@ export class UsersController {
       ? user.profilePicture.substring(1)
       : user.profilePicture;
     return res.sendFile(picturePath, { root: '.' });
+  }
+
+  // New endpoints for MyStuff entity
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':userId/my-stuff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all my stuff for a user' })
+  async getMyStuff(@Param('userId') userId: string, @Req() req) {
+    if (+userId !== req.user.id) {
+      throw new ForbiddenException('Access denied');
+    }
+    return this.usersService.findMyStuffByUser(+userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':userId/my-stuff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Create a new my stuff item for a user' })
+  async createMyStuff(@Param('userId') userId: string, @Body() createMyStuffDto: CreateMyStuffDto, @Req() req) {
+    if (+userId !== req.user.id) {
+      throw new ForbiddenException('Access denied');
+    }
+    return this.usersService.createMyStuff(+userId, createMyStuffDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('my-stuff/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get a my stuff item by ID' })
+  async getMyStuffById(@Param('id') id: string, @Req() req) {
+    const myStuff = await this.usersService.findMyStuffById(+id);
+    if (!myStuff || myStuff.userId !== req.user.id) {
+      throw new ForbiddenException('Access denied');
+    }
+    return myStuff;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('my-stuff/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update a my stuff item by ID' })
+  async updateMyStuff(@Param('id') id: string, @Body() updateMyStuffDto: UpdateMyStuffDto, @Req() req) {
+    const myStuff = await this.usersService.findMyStuffById(+id);
+    if (!myStuff || myStuff.userId !== req.user.id) {
+      throw new ForbiddenException('Access denied');
+    }
+    return this.usersService.updateMyStuff(+id, updateMyStuffDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('my-stuff/:id')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a my stuff item by ID' })
+  async deleteMyStuff(@Param('id') id: string, @Req() req) {
+    const myStuff = await this.usersService.findMyStuffById(+id);
+    if (!myStuff || myStuff.userId !== req.user.id) {
+      throw new ForbiddenException('Access denied');
+    }
+    return this.usersService.removeMyStuff(+id);
   }
 }
