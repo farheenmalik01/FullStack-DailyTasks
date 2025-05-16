@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { User } from '../entities/user.entity';
 
-const dataDir = 'D:/Ideofuzion/task2/src/user-data';
+const dataDir = '/usr/src/app/src/user-data';
 
 export async function saveUserDataToFile(user: User): Promise<void> {
   try {

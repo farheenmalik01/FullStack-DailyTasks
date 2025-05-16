@@ -1,14 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from '../src/users/users.service';
-
-const mockUsersRepository = {
-  find: jest.fn(),
-  findOneBy: jest.fn(),
-  create: jest.fn(),
-  save: jest.fn(),
-  update: jest.fn(),
-  delete: jest.fn(),
-};
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from '../src/users/entities/user.entity';
+import { MyStuff } from '../src/users/entities/my-stuff.entity';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -18,8 +12,12 @@ describe('UsersService', () => {
       providers: [
         UsersService,
         {
-          provide: 'UserRepository',
-          useValue: mockUsersRepository,
+          provide: getRepositoryToken(User),
+          useValue: {}, // mock repository
+        },
+        {
+          provide: getRepositoryToken(MyStuff),
+          useValue: {}, // mock repository
         },
       ],
     }).compile();

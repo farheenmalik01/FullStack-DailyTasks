@@ -1,0 +1,12 @@
+{
+  "id": 2,
+  "firstName": "ali",
+  "lastName": "shayan",
+  "age": 23,
+  "email": "a.47@gmail.com",
+  "password": "$2b$10$w7u4..feg4aihRZex.n97ePbOFTffmQYKzvxHwWveblCV6ERu1vd6",
+  "tokenVersion": 0,
+  "token": null,
+  "role": "admin",
+  "profilePicture": "/uploads/1747206653012.pdf"
+}

@@ -1,0 +1,12 @@
+{
+  "id": 1,
+  "firstName": "farheen",
+  "lastName": "malik",
+  "age": 22,
+  "email": "freen@gmail.com",
+  "password": "$2b$10$kNydtELc7taq.2xIQuZITOSvKyBHKvk7r5C1jBgvl3rUdtDZl3jBm",
+  "tokenVersion": 0,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsInRva2VuVmVyc2lvbiI6MCwiaWF0IjoxNzQ3MjA4MTAyLCJleHAiOjE3NDcyMTE3MDJ9.MTvC8pXYvgUnhXgXi-0PrK_LdiXWj0h6wA0ieAEtP64",
+  "role": "admin",
+  "profilePicture": "/uploads/1747208145343.png"
+}

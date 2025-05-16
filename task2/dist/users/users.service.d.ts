@@ -15,7 +15,7 @@ export declare class UsersService {
     create(createUserDto: Partial<User>): Promise<User>;
     update(id: number, updateUserDto: any): Promise<User | null>;
     remove(id: number): Promise<void>;
-    getUser(id: string): LocalUser | undefined;
-    updateUser(id: string, data: any): LocalUser | undefined;
-    updateProfilePicture(id: string, filename: string): LocalUser | undefined;
+    getUser(id: string): Promise<User | null>;
+    updateUser(id: string, data: any): Promise<User | null>;
+    updateProfilePicture(id: string, filename: string): Promise<User | null>;
 }

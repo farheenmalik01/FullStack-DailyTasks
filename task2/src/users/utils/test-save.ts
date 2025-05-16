@@ -13,6 +13,7 @@ async function testSave() {
     token: null as any,
     role: 'user',
     profilePicture: null as any,
+    myStuff: []
   };
 
   try {

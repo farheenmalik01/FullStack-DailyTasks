@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { MyStuff } from './entities/my-stuff.entity';
 import { saveUserDataToFile } from './utils/file-handler';
 
 export interface LocalUser {
@@ -14,7 +15,9 @@ export interface LocalUser {
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    public usersRepository: Repository<User>
+    public usersRepository: Repository<User>,
+    @InjectRepository(MyStuff)
+    private myStuffRepository: Repository<MyStuff>,
   ) {}
 
   private users: LocalUser[] = [
@@ -109,5 +112,29 @@ export class UsersService {
       }
     }
     return updatedUser;
+  }
+
+  // New methods for MyStuff entity
+
+  async createMyStuff(userId: number, data: Partial<MyStuff>): Promise<MyStuff> {
+    const myStuff = this.myStuffRepository.create({ ...data, userId });
+    return this.myStuffRepository.save(myStuff);
+  }
+
+  async findMyStuffByUser(userId: number): Promise<MyStuff[]> {
+    return this.myStuffRepository.find({ where: { userId } });
+  }
+
+  async findMyStuffById(id: number): Promise<MyStuff | null> {
+    return this.myStuffRepository.findOneBy({ id });
+  }
+
+  async updateMyStuff(id: number, data: Partial<MyStuff>): Promise<MyStuff | null> {
+    await this.myStuffRepository.update(id, data);
+    return this.myStuffRepository.findOneBy({ id });
+  }
+
+  async removeMyStuff(id: number): Promise<void> {
+    await this.myStuffRepository.delete(id);
   }
 }
