@@ -7,8 +7,9 @@ import { MyStuff } from '../src/users/entities/my-stuff.entity';
 import { User } from '../src/users/entities/user.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import * as jwt from 'jsonwebtoken';
 
-jest.setTimeout(30000);
+jest.setTimeout(30000); // Increase timeout to 30 seconds
 
 describe('MyStuffController (e2e)', () => {
   let app: INestApplication;
@@ -55,10 +56,9 @@ describe('MyStuffController (e2e)', () => {
     const savedUser = await userRepository.save(user);
     userId = savedUser.id;
 
-    // Simulate login or generate JWT token for test user
-    // For simplicity, assume a valid token is set here
-    // Replace with actual login or token generation if needed
-    jwtToken = 'Bearer your_valid_jwt_token_here';
+    // Generate a valid JWT token for the test user
+    const secret = 'testsecret';
+    jwtToken = 'Bearer ' + jwt.sign({ sub: userId, email: user.email }, secret, { expiresIn: '1h' });
   });
 
   afterAll(async () => {

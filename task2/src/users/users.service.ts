@@ -15,7 +15,8 @@ export interface LocalUser {
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    public usersRepository: Repository<User>,
+    private usersRepository: Repository<User>,
+
     @InjectRepository(MyStuff)
     private myStuffRepository: Repository<MyStuff>,
   ) {}
@@ -114,27 +115,27 @@ export class UsersService {
     return updatedUser;
   }
 
-  // New methods for MyStuff entity
-
   async createMyStuff(userId: number, data: Partial<MyStuff>): Promise<MyStuff> {
-    const myStuff = this.myStuffRepository.create({ ...data, userId });
-    return this.myStuffRepository.save(myStuff);
+    if (!data.title || !data.description) {
+      throw new Error('Title and description are required');
+    }
+    const myStuff = this.myStuffRepository.create({
+    ...data,
+    userId
+  });
+
+    return await this.myStuffRepository.save(myStuff);
   }
 
   async findMyStuffByUser(userId: number): Promise<MyStuff[]> {
     return this.myStuffRepository.find({ where: { userId } });
   }
 
+  async findMyStuff(): Promise<MyStuff[]> {
+    return this.myStuffRepository.find();
+  }
+
   async findMyStuffById(id: number): Promise<MyStuff | null> {
     return this.myStuffRepository.findOneBy({ id });
-  }
-
-  async updateMyStuff(id: number, data: Partial<MyStuff>): Promise<MyStuff | null> {
-    await this.myStuffRepository.update(id, data);
-    return this.myStuffRepository.findOneBy({ id });
-  }
-
-  async removeMyStuff(id: number): Promise<void> {
-    await this.myStuffRepository.delete(id);
   }
 }

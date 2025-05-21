@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, NotFoundException, Req, UseInterceptors, UploadedFile, Res, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, UseGuards, NotFoundException, Req, UseInterceptors, UploadedFile, Res, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { UsersService, LocalUser } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -14,8 +14,6 @@ import { User } from './entities/user.entity';
 import { Response } from 'express';
 import { MyStuff } from './entities/my-stuff.entity';
 import { CreateMyStuffDto } from './dto/create-my-stuff.dto';
-import { UpdateMyStuffDto } from './dto/update-my-stuff.dto';
-
 
 @ApiTags('users')
 @Controller('users')
@@ -42,7 +40,11 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'User found' })
   @ApiResponse({ status: 404, description: 'User not found' })
   findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+    const userId = Number(id);
+    if (isNaN(userId) || !Number.isInteger(userId) || userId <= 0) {
+      throw new BadRequestException(`Invalid user ID: ${id}`);
+    }
+    return this.usersService.findOne(userId);
   }
 
   @Public()
@@ -62,7 +64,11 @@ export class UsersController {
   @ApiBody({ type: UpdateUserDto })
   @ApiResponse({ status: 200, description: 'User updated' })
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+    const userId = Number(id);
+    if (isNaN(userId) || !Number.isInteger(userId) || userId <= 0) {
+      throw new BadRequestException(`Invalid user ID: ${id}`);
+    }
+    return this.usersService.update(userId, updateUserDto);
   }
 
   @Roles('admin')
@@ -73,7 +79,11 @@ export class UsersController {
   @ApiParam({ name: 'id', type: Number })
   @ApiResponse({ status: 200, description: 'User deleted' })
   remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+    const userId = Number(id);
+    if (isNaN(userId) || !Number.isInteger(userId) || userId <= 0) {
+      throw new BadRequestException(`Invalid user ID: ${id}`);
+    }
+    return this.usersService.remove(userId);
   }
 
   @Post(':id/reset-token-version')
@@ -84,8 +94,12 @@ export class UsersController {
   @ApiResponse({ status: 200, description: 'Token version reset successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
   async resetTokenVersion(@Param('id') id: string) {
-    await this.usersService.update(+id, { tokenVersion: 0 });
-    const user = await this.usersService.findOne(+id);
+    const userId = Number(id);
+    if (isNaN(userId) || !Number.isInteger(userId) || userId <= 0) {
+      throw new BadRequestException(`Invalid user ID: ${id}`);
+    }
+    await this.usersService.update(userId, { tokenVersion: 0 });
+    const user = await this.usersService.findOne(userId);
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -119,7 +133,7 @@ export class UsersController {
     }),
     fileFilter: (req, file, cb) => {
       if (!file.mimetype.match(/\/(jpg|jpeg|png|gif)$/)) {
-        return cb(new Error('Only image files are allowed!'), false);
+        return cb(new BadRequestException('Only image files are allowed!'), false);
       } 
       cb(null, true);
     },
@@ -149,10 +163,11 @@ export class UsersController {
     },
   })
   async uploadPicture(@Param('id') id: string, @UploadedFile() file: Express.Multer.File): Promise<User | null> {
+    const userId = Number(id);
+    if (isNaN(userId) || !Number.isInteger(userId) || userId <= 0) {
+      throw new BadRequestException(`Invalid user ID: ${id}`);
+    }
     try {
-      if (!id || isNaN(Number(id))) {
-        throw new Error('Invalid user ID');
-      }
       const user = await this.usersService.updateProfilePicture(id, file.filename);
       return user;
     } catch (error) {
@@ -163,7 +178,11 @@ export class UsersController {
 
   @Get(':id/picture')
   async getPicture(@Param('id') id: string, @Res() res: Response) {
-    const user = await this.usersService.findOne(+id);
+    const userId = Number(id);
+    if (isNaN(userId) || !Number.isInteger(userId) || userId <= 0) {
+      throw new BadRequestException(`Invalid user ID: ${id}`);
+    }
+    const user = await this.usersService.findOne(userId);
     if (!user || !user.profilePicture) {
       return res.status(404).send('Picture not found');
     }
@@ -173,63 +192,47 @@ export class UsersController {
     return res.sendFile(picturePath, { root: '.' });
   }
 
-  // New endpoints for MyStuff entity
-
   @UseGuards(JwtAuthGuard)
-  @Get(':userId/my-stuff')
+  @Post('my-stuff')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all my stuff for a user' })
-  async getMyStuff(@Param('userId') userId: string, @Req() req) {
-    if (+userId !== req.user.id) {
-      throw new ForbiddenException('Access denied');
+  @ApiOperation({ summary: 'Create a new my stuff item for the current user' })
+  @ApiResponse({ status: 201, description: 'My stuff item created' })
+  async createMyStuff(
+    @Body() createMyStuffDto: CreateMyStuffDto,
+    @Req() req,
+  ) {
+    const userId = req.user?.sub; 
+    if (!userId) {
+      throw new ForbiddenException('User not authenticated or missing user ID');
     }
-    return this.usersService.findMyStuffByUser(+userId);
+    
+    console.log('Creating myStuff for user:', userId);
+    
+    return this.usersService.createMyStuff(userId, createMyStuffDto);
+  }
+  
+  @UseGuards(JwtAuthGuard)
+  @Get('my-stuff/all')
+  @ApiBearerAuth()
+  async getAllMyStuff() {
+    return this.usersService.findMyStuff();
   }
 
+  
   @UseGuards(JwtAuthGuard)
-  @Post(':userId/my-stuff')
+  @Get('my-stuff/item/:id')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new my stuff item for a user' })
-  async createMyStuff(@Param('userId') userId: string, @Body() createMyStuffDto: CreateMyStuffDto, @Req() req) {
-    if (+userId !== req.user.id) {
-      throw new ForbiddenException('Access denied');
-    }
-    return this.usersService.createMyStuff(+userId, createMyStuffDto);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('my-stuff/:id')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get a my stuff item by ID' })
   async getMyStuffById(@Param('id') id: string, @Req() req) {
-    const myStuff = await this.usersService.findMyStuffById(+id);
-    if (!myStuff || myStuff.userId !== req.user.id) {
-      throw new ForbiddenException('Access denied');
+    const myStuffId = Number(id);
+    if (isNaN(myStuffId) || !Number.isInteger(myStuffId) || myStuffId <= 0) {
+      throw new BadRequestException(`Invalid myStuff ID: ${id}`);
     }
+    const myStuff = await this.usersService.findMyStuffById(myStuffId);
+    if (!myStuff) {
+      throw new NotFoundException('Item not found');
+    }
+    // Add access control if needed here
     return myStuff;
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Put('my-stuff/:id')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a my stuff item by ID' })
-  async updateMyStuff(@Param('id') id: string, @Body() updateMyStuffDto: UpdateMyStuffDto, @Req() req) {
-    const myStuff = await this.usersService.findMyStuffById(+id);
-    if (!myStuff || myStuff.userId !== req.user.id) {
-      throw new ForbiddenException('Access denied');
-    }
-    return this.usersService.updateMyStuff(+id, updateMyStuffDto);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete('my-stuff/:id')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a my stuff item by ID' })
-  async deleteMyStuff(@Param('id') id: string, @Req() req) {
-    const myStuff = await this.usersService.findMyStuffById(+id);
-    if (!myStuff || myStuff.userId !== req.user.id) {
-      throw new ForbiddenException('Access denied');
-    }
-    return this.usersService.removeMyStuff(+id);
-  }
 }
