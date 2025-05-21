@@ -17,6 +17,7 @@ services:
       retries: 10
 
   backend:
+    platform: linux/amd64
     build: .
     container_name: task2-backend
     environment:

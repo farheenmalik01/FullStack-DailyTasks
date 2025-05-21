@@ -25,6 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     console.log('Received JWT payload:', payload);
     
+    const userId = parseInt(payload.sub || payload.id || payload.userId, 10)
     const user = await this.usersService.findOne(payload.sub);
     if (!user) {
       console.error('User not found for sub:', payload.sub);
@@ -39,6 +40,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     console.log('Token validation successful for user:', user.id);
-    return user;
+    
+    return { 
+      id: userId,
+      role: user.role,
+      ...payload
+    };
   }
 }
