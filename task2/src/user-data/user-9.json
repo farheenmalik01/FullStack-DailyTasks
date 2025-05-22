@@ -1,0 +1,12 @@
+{
+  "id": 9,
+  "firstName": "Farheen",
+  "lastName": "Malik",
+  "age": 22,
+  "email": "freen@gmail.com",
+  "password": "freen_01",
+  "tokenVersion": 0,
+  "token": null,
+  "role": "admin",
+  "profilePicture": null
+}

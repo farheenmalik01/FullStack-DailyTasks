@@ -205,6 +205,10 @@ export class UsersController {
     if (!userId) {
       throw new ForbiddenException('User not authenticated or missing user ID');
     }
+    const user = await this.usersService.findOne(userId);
+    if (!user || user.email !== 'freen@gmail.com') {
+      throw new ForbiddenException('Access denied: unauthorized email');
+    }
     
     console.log('Creating myStuff for user:', userId);
     
@@ -214,10 +218,17 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('my-stuff/all')
   @ApiBearerAuth()
-  async getAllMyStuff() {
+  async getAllMyStuff(@Req() req) {
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new ForbiddenException('User not authenticated or missing user ID');
+    }
+    const user = await this.usersService.findOne(userId);
+    if (!user || user.email !== 'freen@gmail.com') {
+      throw new ForbiddenException('Access denied: unauthorized email');
+    }
     return this.usersService.findMyStuff();
   }
-
   
   @UseGuards(JwtAuthGuard)
   @Get('my-stuff/item/:id')
@@ -227,12 +238,17 @@ export class UsersController {
     if (isNaN(myStuffId) || !Number.isInteger(myStuffId) || myStuffId <= 0) {
       throw new BadRequestException(`Invalid myStuff ID: ${id}`);
     }
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new ForbiddenException('User not authenticated or missing user ID');
+    }
+    const user = await this.usersService.findOne(userId);
+    if (!user || user.email !== 'freen@gmail.com') {
+      throw new ForbiddenException('Access denied: unauthorized email');
+    }
     const myStuff = await this.usersService.findMyStuffById(myStuffId);
     if (!myStuff) {
       throw new NotFoundException('Item not found');
     }
-    // Add access control if needed here
-    return myStuff;
   }
-
 }

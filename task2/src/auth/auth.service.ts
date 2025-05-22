@@ -13,10 +13,17 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<any> {
     try {
+      console.log('Validating user with email:', email);
+      console.log('Password received:', pass, 'Length:', pass.length);
       const user = await this.usersService.findByEmail(email);
-      if (user && (await bcrypt.compare(pass, user.password))) {
-        const { password, ...result } = user;
-        return result;
+      console.log('User found:', user ? user.email : 'No user found');
+      if (user) {
+        const passwordMatch = await bcrypt.compare(pass, user.password);
+        console.log('Password match:', passwordMatch);
+        if (passwordMatch) {
+          // Return full user entity instead of partial
+          return user;
+        }
       }
       return null;
     } catch (error) {

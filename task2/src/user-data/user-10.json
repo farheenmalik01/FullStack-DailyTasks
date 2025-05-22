@@ -1,0 +1,12 @@
+{
+  "id": 10,
+  "firstName": "Ali",
+  "lastName": "Shayan",
+  "age": 23,
+  "email": "a.47@gmail.com",
+  "password": "alishayan_01",
+  "tokenVersion": 0,
+  "token": null,
+  "role": "admin",
+  "profilePicture": null
+}
