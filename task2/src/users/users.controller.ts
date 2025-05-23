@@ -237,24 +237,19 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('my-stuff/all')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get all my stuff for the authenticated user (only user 1)' })
+  @ApiOperation({ summary: 'Get all my stuff for the authenticated user' })
   @ApiResponse({ 
     status: 200, 
     description: 'Returns user info with their stuff',
     type: User
   })
-  @ApiResponse({ status: 403, description: 'Forbidden if not user 1' })
   async getAllMyStuff(@Req() req) {
     const userId = req.user?.sub;
     if (!userId) {
       throw new ForbiddenException('User not authenticated or missing user ID');
     }
     
-    if (parseInt(userId) !== 1) {
-      throw new ForbiddenException('Access denied: Only user 1 can access this endpoint');
-    }
-
-    const userWithStuff = await this.usersService.findUserWithStuff(1);
+    const userWithStuff = await this.usersService.findUserWithStuff(parseInt(userId));
     if (!userWithStuff) {
       throw new NotFoundException('User not found');
     }

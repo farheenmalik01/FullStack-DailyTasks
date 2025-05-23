@@ -21,7 +21,7 @@ async function resetPassword() {
   const userRepository = dataSource.getRepository(User);
 
   const email = 'a.47@gmail.com';
-  const newPassword = 'shayan_47';
+  const newPassword = 'shayan_01';
 
   const user = await userRepository.findOneBy({ email });
   if (!user) {
