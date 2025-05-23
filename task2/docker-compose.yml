@@ -29,11 +29,13 @@ services:
     ports:
       - "50000:50000"
     volumes:
-      - ./uploads:/usr/src/app/uploads
-      - ./src/user-data:/usr/src/app/src/user-data
+      - backend_uploads:/usr/src/app/uploads
+      - backend_user_data:/usr/src/app/src/user-data
     depends_on:
       postgres:
         condition: service_healthy
 
 volumes:
   postgres_data:
+  backend_uploads:
+  backend_user_data:

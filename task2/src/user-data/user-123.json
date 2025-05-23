@@ -4,7 +4,7 @@
   "lastName": "User",
   "age": 30,
   "email": "testuser@example.com",
-  "password": "password",
+  "password": "$2b$10$BHoyxfiy6o.qN4puYXk2meIVXYaBeErimswNJ4aC.LhkIxN4Cy3EK",
   "tokenVersion": 0,
   "token": null,
   "role": "user",

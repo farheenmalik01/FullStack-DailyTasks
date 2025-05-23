@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 import { User } from './entities/user.entity';
 import { MyStuff } from './entities/my-stuff.entity';
 import { saveUserDataToFile } from './utils/file-handler';
@@ -33,6 +34,33 @@ export class UsersService {
     return this.usersRepository.findOneBy({ id });
   }
 
+//  async findUserWithStuff(id: number): Promise<User | null> {
+//    return this.usersRepository
+//      .createQueryBuilder('user')
+//      .leftJoinAndSelect('user.myStuff', 'myStuff')
+//      .where('user.id = :id', { id })
+//      .getOne();
+//  }
+
+  async findUserWithStuff(id: number): Promise<User | null> {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.myStuff', 'myStuff')
+      .where('user.id = :id', { id })
+      .select([
+        'user.id',
+        'user.firstName',
+        'user.lastName',
+        'user.email',
+        'user.role',
+        'user.profilePicture',
+        'myStuff.id',
+        'myStuff.title',
+        'myStuff.description'
+      ])
+      .getOne();
+  }
+
   findByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOneBy({ email });
   }
@@ -57,6 +85,9 @@ export class UsersService {
 
   async update(id: number, updateUserDto: any): Promise<User | null> {
     console.log('update method called with id:', id, 'data:', updateUserDto);
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
     await this.usersRepository.update(id, updateUserDto);
     const updatedUser = await this.usersRepository.findOneBy({ id });
     if (updatedUser) {
@@ -82,6 +113,9 @@ export class UsersService {
 
   async updateUser(id: string, data: any): Promise<User | null> {
     console.log('updateUser method called with id:', id, 'data:', data);
+    if (data.password) {
+      data.password = await bcrypt.hash(data.password, 10);
+    }
     await this.usersRepository.update(parseInt(id), data);
     const updatedUser = await this.usersRepository.findOneBy({ id: parseInt(id) });
     if (updatedUser) {
@@ -138,4 +172,5 @@ export class UsersService {
   async findMyStuffById(id: number): Promise<MyStuff | null> {
     return this.myStuffRepository.findOneBy({ id });
   }
+
 }

@@ -1,16 +1,18 @@
 import { DataSource } from 'typeorm';
 import { User } from '../entities/user.entity';
+import { MyStuff } from '../entities/my-stuff.entity';
 import * as bcrypt from 'bcryptjs';
 
 async function resetPassword() {
   const dataSource = new DataSource({
     type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'your_db_username',
-    password: 'your_db_password',
-    database: 'your_db_name',
-    entities: [User],
+    host: process.env.DB_HOST || 'localhost',
+    port: parseInt(process.env.DB_PORT || '5433'),
+
+    username: process.env.DB_USERNAME || 'farheen',
+    password: process.env.DB_PASSWORD || 'farheen',
+    database: process.env.DB_DATABASE || 'users',
+    entities: [User, MyStuff],
     synchronize: false,
   });
 
@@ -18,8 +20,8 @@ async function resetPassword() {
 
   const userRepository = dataSource.getRepository(User);
 
-  const email = 'freen@gmail.com';
-  const newPassword = 'freen_01';
+  const email = 'a.47@gmail.com';
+  const newPassword = 'shayan_47';
 
   const user = await userRepository.findOneBy({ email });
   if (!user) {

@@ -4,7 +4,7 @@
   "lastName": "Shayan",
   "age": 23,
   "email": "a.47@gmail.com",
-  "password": "alishayan_01",
+  "password": "$2b$10$ZBUJjPPneGxEBc4Pa83E3eSGQywHkTmlUZTXnlRldqyxRpH2kB.7a",
   "tokenVersion": 0,
   "token": null,
   "role": "admin",

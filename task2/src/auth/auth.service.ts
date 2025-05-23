@@ -21,7 +21,6 @@ export class AuthService {
         const passwordMatch = await bcrypt.compare(pass, user.password);
         console.log('Password match:', passwordMatch);
         if (passwordMatch) {
-          // Return full user entity instead of partial
           return user;
         }
       }
