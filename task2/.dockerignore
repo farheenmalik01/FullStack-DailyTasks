@@ -1,0 +1,9 @@
+node_modules
+dist
+uploads
+dataDir
+test
+*.log
+*.md
+.git
+.vscode

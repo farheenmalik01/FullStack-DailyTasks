@@ -47,6 +47,25 @@ export class UsersController {
     return this.usersService.findOne(userId);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/with-stuff')
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get user by ID with their stuff' })
+  @ApiParam({ name: 'id', type: Number })
+  @ApiResponse({ status: 200, description: 'User with stuff found' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async findOneWithStuff(@Param('id') id: string) {
+    const userId = Number(id);
+    if (isNaN(userId) || !Number.isInteger(userId) || userId <= 0) {
+      throw new BadRequestException(`Invalid user ID: ${id}`);
+    }
+    const userWithStuff = await this.usersService.findUserWithStuff(userId);
+    if (!userWithStuff) {
+      throw new NotFoundException('User not found');
+    }
+    return userWithStuff;
+  }
+
   @Public()
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
@@ -192,9 +211,9 @@ export class UsersController {
     return res.sendFile(picturePath, { root: '.' });
   }
 
-  @UseGuards(JwtAuthGuard)
+  //@UseGuards(JwtAuthGuard)
   @Post('my-stuff')
-  @ApiBearerAuth()
+  //@ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new my stuff item for the current user' })
   @ApiResponse({ status: 201, description: 'My stuff item created' })
   async createMyStuff(
@@ -205,6 +224,10 @@ export class UsersController {
     if (!userId) {
       throw new ForbiddenException('User not authenticated or missing user ID');
     }
+    const user = await this.usersService.findOne(userId);
+    if (!user || user.email !== 'freen@gmail.com') {
+      throw new ForbiddenException('Access denied: unauthorized email');
+    }
     
     console.log('Creating myStuff for user:', userId);
     
@@ -214,11 +237,31 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('my-stuff/all')
   @ApiBearerAuth()
-  async getAllMyStuff() {
-    return this.usersService.findMyStuff();
-  }
+  @ApiOperation({ summary: 'Get all my stuff for the authenticated user (only user 1)' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Returns user info with their stuff',
+    type: User
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden if not user 1' })
+  async getAllMyStuff(@Req() req) {
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new ForbiddenException('User not authenticated or missing user ID');
+    }
+    
+    if (parseInt(userId) !== 1) {
+      throw new ForbiddenException('Access denied: Only user 1 can access this endpoint');
+    }
 
+    const userWithStuff = await this.usersService.findUserWithStuff(1);
+    if (!userWithStuff) {
+      throw new NotFoundException('User not found');
+    }
+    return userWithStuff;
+  }
   
+
   @UseGuards(JwtAuthGuard)
   @Get('my-stuff/item/:id')
   @ApiBearerAuth()
@@ -227,12 +270,13 @@ export class UsersController {
     if (isNaN(myStuffId) || !Number.isInteger(myStuffId) || myStuffId <= 0) {
       throw new BadRequestException(`Invalid myStuff ID: ${id}`);
     }
+    const userId = req.user?.sub;
+    if (!userId) {
+      throw new ForbiddenException('User not authenticated or missing user ID');
+    }
     const myStuff = await this.usersService.findMyStuffById(myStuffId);
     if (!myStuff) {
       throw new NotFoundException('Item not found');
     }
-    // Add access control if needed here
-    return myStuff;
   }
-
 }

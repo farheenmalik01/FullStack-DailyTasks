@@ -23,6 +23,6 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(50000);
-  console.log('Server running at http://localhost:50000');
+  console.log('Server running at http://localhost:50000/api');
 }
 bootstrap();
