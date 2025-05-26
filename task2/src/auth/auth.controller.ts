@@ -40,6 +40,21 @@ export class AuthController {
   }
 
   @Public()
+  @Post('signin-mongo')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'User login with MongoDB' })
+  @ApiBody({ type: LoginUserDto })
+  @ApiResponse({ status: 200, description: 'Successful login', type: AuthResponseDto })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  async loginMongo(@Body() loginDto: LoginUserDto): Promise<AuthResponseDto> {
+    const user = await this.authService.validateMongoUser(loginDto.email, loginDto.password);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    return this.authService.loginMongoUser(user);
+  }
+
+  @Public()
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'User signup' })

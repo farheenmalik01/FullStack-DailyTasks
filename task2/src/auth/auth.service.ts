@@ -3,12 +3,15 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
+import { MongoUsersService } from '../mongodb/mongo-users.service';
+import { MongoUser } from '../mongodb/schemas/mongo-user.schema';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private mongoUsersService: MongoUsersService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
@@ -58,6 +61,45 @@ export class AuthService {
     throw new InternalServerErrorException('Error during login');
   }
 }
+
+  async validateMongoUser(email: string, pass: string): Promise<any> {
+    try {
+      const user: MongoUser | null = await this.mongoUsersService.validateUser(email, pass);
+      if (user) {
+        return user;
+      }
+      return null;
+    } catch (error) {
+      console.error('AuthService: Error validating MongoDB user', error);
+      throw new InternalServerErrorException('Error validating MongoDB user');
+    }
+  }
+
+  async loginMongoUser(user: MongoUser) {
+    try {
+      const payload = {
+        sub: user._id,
+        tokenVersion: user.tokenVersion,
+      };
+      const token = this.jwtService.sign(payload);
+
+      user.tokenVersion += 1;
+      await this.mongoUsersService.updateTokenVersion(user._id, user.tokenVersion);
+
+      const userObj = user.toObject();
+      delete userObj.password;
+
+      return {
+        message: 'MongoDB signin successful',
+        token,
+        user: userObj,
+      };
+    } catch (error) {
+      console.error('AuthService: Error during MongoDB login', error);
+      throw new InternalServerErrorException('Error during MongoDB login');
+    }
+  }
+
   async refreshToken(user: User) {
     try {
       const freshUser = await this.usersService.findOne(user.id);

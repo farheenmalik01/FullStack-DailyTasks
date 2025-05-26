@@ -8,12 +8,16 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guards';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+import { MongoUserSchema } from '../mongodb/schemas/mongo-user.schema';
+import { MongoUsersService } from '../mongodb/mongo-users.service';
 
 @Module({
   imports: [
     ConfigModule,
     forwardRef(() => UsersModule),
     TypeOrmModule.forFeature([User]),
+    MongooseModule.forFeature([{ name: 'MongoUser', schema: MongoUserSchema }]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -24,7 +28,7 @@ import { AuthController } from './auth.controller';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard, MongoUsersService],
   exports: [AuthService, JwtModule, JwtAuthGuard],
 })
 export class AuthModule {}
