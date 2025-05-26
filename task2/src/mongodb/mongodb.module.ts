@@ -14,7 +14,7 @@ import { MongoUserSchema } from './schemas/mongo-user.schema';
         uri: configService.get<string>('MONGODB_ATLAS_URI'),
       }),
     }),
-    MongooseModule.forFeature([{ name: 'MongoUser', schema: MongoUserSchema }]),
+    MongooseModule.forFeature([{ name: 'MongoUser', schema: MongoUserSchema, collection: 'nestjs' }]),
   ],
   providers: [MongoUsersService],
   exports: [MongoUsersService],
