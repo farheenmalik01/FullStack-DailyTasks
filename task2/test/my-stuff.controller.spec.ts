@@ -9,7 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import * as jwt from 'jsonwebtoken';
 
-jest.setTimeout(30000); // Increase timeout to 30 seconds
+jest.setTimeout(30000);
 
 describe('MyStuffController (e2e)', () => {
   let app: INestApplication;
@@ -45,7 +45,6 @@ describe('MyStuffController (e2e)', () => {
     userRepository = dataSource.getRepository(User);
     myStuffRepository = dataSource.getRepository(MyStuff);
 
-    // Create a test user
     const user = userRepository.create({
       firstName: 'Test',
       lastName: 'User',
@@ -56,7 +55,6 @@ describe('MyStuffController (e2e)', () => {
     const savedUser = await userRepository.save(user);
     userId = savedUser.id;
 
-    // Generate a valid JWT token for the test user
     const secret = 'testsecret';
     jwtToken = 'Bearer ' + jwt.sign({ sub: userId, email: user.email }, secret, { expiresIn: '1h' });
   });
@@ -129,15 +127,13 @@ describe('MyStuffController (e2e)', () => {
       .set('Authorization', jwtToken)
       .expect(200);
 
-    // Verify deletion
     await request(app.getHttpServer())
       .get(`/users/my-stuff/${myStuffId}`)
       .set('Authorization', jwtToken)
-      .expect(403); // Access denied or not found
+      .expect(403);
   });
 
   it('should deny access to my-stuff of other users', async () => {
-    // Create another user
     const otherUser = userRepository.create({
       firstName: 'Other',
       lastName: 'User',
@@ -147,7 +143,6 @@ describe('MyStuffController (e2e)', () => {
     });
     const savedOtherUser = await userRepository.save(otherUser);
 
-    // Create my-stuff for other user
     const otherMyStuff = myStuffRepository.create({
       title: 'Other User Item',
       description: 'Other description',
@@ -155,7 +150,6 @@ describe('MyStuffController (e2e)', () => {
     });
     const savedMyStuff = await myStuffRepository.save(otherMyStuff);
 
-    // Try to access other user's my-stuff with original user's token
     await request(app.getHttpServer())
       .get(`/users/my-stuff/${savedMyStuff.id}`)
       .set('Authorization', jwtToken)
