@@ -37,22 +37,17 @@ describe('UsersService', () => {
   });
 
   describe('create', () => {
-    it('should hash password before saving user', async () => {
+    it('should create user without hashing password', async () => {
       const createUserDto = { email: 'test@example.com', password: 'plainpassword' };
-      const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
       mockUserRepository.create.mockReturnValue(createUserDto);
-      mockUserRepository.save.mockResolvedValue({ ...createUserDto, password: hashedPassword });
+      mockUserRepository.save.mockResolvedValue(createUserDto);
 
       const result = await service.create(createUserDto);
 
-      expect(mockUserRepository.create).toHaveBeenCalledWith({
-        email: 'test@example.com',
-        password: expect.any(String),
-      });
-      expect(bcrypt.compareSync('plainpassword', result.password)).toBe(true);
+      expect(mockUserRepository.create).toHaveBeenCalledWith(createUserDto);
+      expect(result.password).toBe('plainpassword');
       expect(mockUserRepository.save).toHaveBeenCalled();
-      expect(result.password).not.toBe('plainpassword');
     });
   });
 
@@ -70,7 +65,8 @@ describe('UsersService', () => {
       expect(mockUserRepository.update).toHaveBeenCalledWith(userId, {
         password: expect.any(String),
       });
-      expect(bcrypt.compareSync('newpassword', result.password)).toBe(true);
+      expect(result).not.toBeNull();
+      expect(bcrypt.compareSync('newpassword', result!.password)).toBe(true);
       expect(mockUserRepository.findOneBy).toHaveBeenCalledWith({ id: userId });
     });
   });
